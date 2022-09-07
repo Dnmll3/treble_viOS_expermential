@@ -28,23 +28,24 @@ elif [ "$1" == "android-11.0" ];then
     manifest_url="https://android.googlesource.com/platform/manifest"
     aosp="android-11.0.0_r48"
     phh="android-11.0"
-elif [ "$1" == "android-12.0" ];then
+elif [ "$1" == "android-13.0" ];then
     manifest_url="https://android.googlesource.com/platform/manifest"
-    aosp="android-12.1.0_r11"
-    phh="android-12.0"
+    aosp="android-13.0.0_r4"
+    phh="android-13.0"
 else
 	# guess android version from version number
 	rebuild_release="yes"
-	if [ -n "$(echo $1 | grep -E '^v4..')" ];then
+	if [ -n "$(echo $1 | grep -E '^v5..')" ];then
+		build_target="android-13.0"
+	elif [ -n "$(echo $1 | grep -E '^v4..')" ];then
 		build_target="android-12.0"
 	elif [ -n "$(echo $1 | grep -E '^v3..')" ];then
 		build_target="android-11.0"
 	elif [ -n "$(echo $1 | grep -E '^v2..')" ];then
 		build_target="android-10.0"
-	elif [ -n "$(echo $1 | grep -E '^v1..')" ];then
-		build_target="android-9.0"
+	
 	else
-		build_target="android-8.1"
+		build_target="android-9.0"
 	fi
 	# download manifest with the given version number
 	tmp_manifest_source=$(mktemp -d)
@@ -73,7 +74,7 @@ repo sync -c -j 1 --force-sync || repo sync -c -j1 --force-sync
 repo forall -r '.*opengapps.*' -c 'git lfs fetch && git lfs checkout'
 (cd device/phh/treble; git clean -fdx; if [ -f phh.mk ];then bash generate.sh phh;else bash generate.sh;fi)
 (cd vendor/foss; git clean -fdx; bash update.sh)
-if [ "$build_target" == "android-12.0" ] && grep -q lottie packages/apps/Launcher3/Android.bp;then
+if [ "$build_target" == "android-13.0" ] && grep -q lottie packages/apps/Launcher3/Android.bp;then
     (cd vendor/partner_gms; git am $originFolder/0001-Fix-SearchLauncher-for-Android-12.1.patch || true)
 fi
 rm -f vendor/gapps/interfaces/wifi_ext/Android.bp
@@ -92,7 +93,7 @@ repo manifest -r > release/$rom_fp/manifest.xml
 bash "$originFolder"/list-patches.sh
 cp patches.zip release/$rom_fp/patches-for-developers.zip
 
-if [ "$build_target" == "android-12.0" ];then
+if [ "$build_target" == "android-13.0" ];then
     (
         git clone https://github.com/phhusson/sas-creator
         cd sas-creator
@@ -100,30 +101,30 @@ if [ "$build_target" == "android-12.0" ];then
         git clone https://github.com/phhusson/vendor_vndk -b android-10.0
     )
 
-	buildVariant treble_arm64_bvS-userdebug squeak-arm64-ab-vanilla
+	buildVariant treble_arm64_bvS-userdebug aosp13-arm64-ab-vanilla
     ( cd sas-creator; bash lite-adapter.sh 64; xz -c s.img -T0 > ../release/$rom_fp/system-squeak-arm64-ab-vndklite-vanilla.img.xz )
     ( cd sas-creator; bash securize.sh s.img; xz -c s-secure.img -T0 > ../release/$rom_fp/system-squeak-arm64-ab-vndklite-vanilla-secure.img.xz )
 
-	buildVariant treble_arm64_bgS-userdebug squeak-arm64-ab-gapps
+	buildVariant treble_arm64_bgS-userdebug aosp13-arm64-ab-gapps
     ( cd sas-creator; bash lite-adapter.sh 64; xz -c s.img -T0 > ../release/$rom_fp/system-squeak-arm64-ab-vndklite-gapps.img.xz )
     ( cd sas-creator; bash securize.sh s.img; xz -c s-secure.img -T0 > ../release/$rom_fp/system-squeak-arm64-ab-vndklite-gapps-secure.img.xz )
 
-	buildVariant treble_arm64_boS-userdebug squeak-arm64-ab-gogapps
+	buildVariant treble_arm64_boS-userdebug aosp13-arm64-ab-gogapps
     ( cd sas-creator; bash lite-adapter.sh 64; xz -c s.img -T0 > ../release/$rom_fp/system-squeak-arm64-ab-vndklite-gogapps.img.xz )
     ( cd sas-creator; bash securize.sh s.img; xz -c s-secure.img -T0 > ../release/$rom_fp/system-squeak-arm64-ab-vndklite-gogapps-secure.img.xz )
 
-	buildVariant treble_arm64_bfS-userdebug squeak-arm64-ab-floss
+	buildVariant treble_arm64_bfS-userdebug aosp13-arm64-ab-floss
     ( cd sas-creator; bash lite-adapter.sh 64; xz -c s.img -T0 > ../release/$rom_fp/system-squeak-arm64-ab-vndklite-floss.img.xz )
     ( cd sas-creator; bash securize.sh s.img; xz -c s-secure.img -T0 > ../release/$rom_fp/system-squeak-arm64-ab-vndklite-floss-secure.img.xz )
 
-	buildVariant treble_a64_bvS-userdebug squeak-arm32_binder64-ab-vanilla
+	buildVariant treble_a64_bvS-userdebug aosp13-arm32_binder64-ab-vanilla
     ( cd sas-creator; bash lite-adapter.sh 32; xz -c s.img -T0 > ../release/$rom_fp/system-squeak-arm32_binder64-ab-vndklite-vanilla.img.xz )
     ( cd sas-creator; bash securize.sh s.img; xz -c s-secure.img -T0 > ../release/$rom_fp/system-squeak-arm32_binder64-ab-vndklite-vanilla-secure.img.xz )
 
-	buildVariant treble_a64_boS-userdebug squeak-arm32_binder64-ab-gogapps
+	buildVariant treble_a64_boS-userdebug aosp13-arm32_binder64-ab-gogapps
     ( cd sas-creator; bash lite-adapter.sh 32; xz -c s.img -T0 > ../release/$rom_fp/system-squeak-arm32_binder64-ab-vndklite-gogapps.img.xz )
     ( cd sas-creator; bash securize.sh s.img; xz -c s-secure.img -T0 > ../release/$rom_fp/system-squeak-arm32_binder64-ab-vndklite-gogapps-secure.img.xz )
-elif [ "$build_target" == "android-11.0" ];then
+elif [ "$build_target" == "android-12.0" ];then
     (
         git clone https://github.com/phhusson/sas-creator
         cd sas-creator
