@@ -43,7 +43,9 @@ else
 	rebuild_release="yes"
 	if [ -n "$(echo $1 | grep -E '^v5..')" ];then
 		build_target="android-13.0"
-	elif [ -n "$(echo $1 | grep -E '^v4..')" ];then
+	if [ -n "$(echo $1 | grep -E '^v4..')" ];then
+	
+	elif [ -n "$(echo $1 | grep -E '^v3..')" ];then
 		build_target="android-12.0"
 	elif [ -n "$(echo $1 | grep -E '^v3..')" ];then
 		build_target="android-11.0"
