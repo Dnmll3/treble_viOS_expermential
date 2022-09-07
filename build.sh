@@ -44,16 +44,16 @@ else
 	if [ -n "$(echo $1 | grep -E '^v5..')" ];then
 		build_target="android-13.0"
 	if [ -n "$(echo $1 | grep -E '^v4..')" ];then
-	
-	elif [ -n "$(echo $1 | grep -E '^v3..')" ];then
-		build_target="android-12.0"
+	build_target="android-12.0"
 	elif [ -n "$(echo $1 | grep -E '^v3..')" ];then
 		build_target="android-11.0"
-	elif [ -n "$(echo $1 | grep -E '^v2..')" ];then
+	elif [ -n "$(echo $1 | grep -E '^v3..')" ];then
 		build_target="android-10.0"
+	elif [ -n "$(echo $1 | grep -E '^v2..')" ];then
+		build_target="android-9.0"
 	
 	else
-		build_target="android-9.0"
+		build_target="android-8.1"
 	fi
 	# download manifest with the given version number
 	tmp_manifest_source=$(mktemp -d)
